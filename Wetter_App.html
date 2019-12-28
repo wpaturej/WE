@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>WetterApp</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="initial-scale=1.0">
+   
+        
+        <script src="jquery-3.3.1.min.js"></script>
+        
+        <link rel="stylesheet" id="coToolbarStyle" href="chrome-extension://cjabmdjcfcfdmffimndhafhblfmpjdpe/toolbar/styles/placeholder.css" type="text/css">
+        
+        <link> 
+        
+        <script>
+                                function umrechnenWochentag(da){
+                    
+                             
+                              var weekday = new Array(7);
+                              
+                              weekday[0] =  "Sunday";
+                              weekday[1] = "Monday";
+                              weekday[2] = "Tuesday";
+                              weekday[3] = "Wednesday";
+                              weekday[4] = "Thursday";
+                              weekday[5] = "Friday";
+                              weekday[6] = "Saturday";
+                              
+                              var n = weekday[da.getDay()];   
+                              
+                              return n; 
+                    
+                    }
+                    
+                    function showIMG(temperature){
+                    
+                     
+                    
+                        var t;
+                        
+                         
+                        
+                        if( temperature <= 0 ){ t = "<img src='images/winter.jpg' width='190'>"; };
+                        
+                        if( temperature > 0 && temperature <= 20 ){ t = "<img src='images/herbst.jpg' width='190'>"; };
+                        
+                        if( temperature > 20){ t = "<img src='images/sunny.jpg' width='190'>"; };
+                        
+                         
+                        
+                        return t;
+                        
+                         
+                    
+                    }
+                    
+                    function umrechnenWindrichtung(w){
+
+ 
+
+                          var w_text;
+                        
+                         
+                        
+                          if(w==360 || (w>=0 && w < 45) ){ w_text = "N";}
+                        
+                          if(w>=45 && w < 90){w_text = "NE";}
+                        
+                          if(w>=90 && w < 135){w_text = "E";}
+                        
+                          if(w>=135 && w < 180){w_text = "SE";}
+                        
+                          if(w>=180 && w < 225){w_text = "S";}
+                        
+                          if(w>=225 && w < 270){w_text = "SW";}
+                        
+                          if(w>=270 && w < 315){w_text = "W";}
+                        
+                          if(w>=315 && w < 360){w_text = "NW";}
+                        
+                         
+                        
+                          return w_text;
+                    
+ 
+                    }
+                    
+                    
+                    function loadData()
+                    {
+                    
+                     
+                        var da = new Date();
+                     
+                     //maps
+                     //$.get(https:maps.owm.io/map/{layer}/{innerCoords1}/{innerCoords2}/{innerCoords4}.png?appid={a5be275a1cefc9346763e2be0647af12})
+                     
+                    /* 
+                     function initMap() {
+                          var map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 6,
+                            center: {lat: -33.872, lng: 151.252},
+                          });
+                        
+                          // Define the LatLng coordinates for the outer path.
+                          var outerCoords = [
+                            {lat: -32.364, lng: 153.207}, // north west
+                            {lat: -35.364, lng: 153.207}, // south west
+                            {lat: -35.364, lng: 158.207}, // south east
+                            {lat: -32.364, lng: 158.207}  // north east
+                          ];
+                        
+                          // Define the LatLng coordinates for an inner path.
+                          var innerCoords1 = [
+                            {lat: -33.364, lng: 154.207},
+                            {lat: -34.364, lng: 154.207},
+                            {lat: -34.364, lng: 155.207},
+                            {lat: -33.364, lng: 155.207}
+                          ];
+                        
+                          // Define the LatLng coordinates for another inner path.
+                          var innerCoords2 = [
+                            {lat: -33.364, lng: 156.207},
+                            {lat: -34.364, lng: 156.207},
+                            {lat: -34.364, lng: 157.207},
+                            {lat: -33.364, lng: 157.207}
+                          ];
+                        
+                          map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,
+                                                                                innerCoords1,
+                                                                                innerCoords2])})
+                        }*/
+                                 
+                     //welche Stadt?
+                     var city = document.getElementById("location_name").value;
+                     
+                     $.get("http://api.openweathermap.org/data/2.5/forecast/daily",
+                     
+                     {appid:"a5be275a1cefc9346763e2be0647af12",q:city, units: "metric", cnt:5},
+                   
+                    
+                     function(data){
+                     
+                        //Wetterdaten stehen in der Variable data
+                    	
+                    	//alte Wetterdaten löschen:
+                    	document.getElementById("weather").innerHTML="";
+                    	
+                    	for(var i=0; i<5; i++){
+
+                    		var temperature = data.list[i].temp.day;
+							var tempNacht = data.list[i].temp.night;
+                    		var wind = data.list[i].speed;
+                    		var hum = data.list[i].humidity;
+                    		var d = data.list[i].weather[0].description;
+                            var b = data.list[i].clouds;
+                            var w = data.list[i].deg;
+                            var WI = data.list[i].weather[0].icon;
+                            var n = umrechnenWochentag(da);
+                            var t = showIMG(temperature);
+                            var w_text= umrechnenWindrichtung(w);                          
+                            
+                        
+                    		                
+                    	   	document.getElementById("weather").innerHTML+="<h2 class='Date'>"+ n +"</h2>";
+                    		
+                    	   	document.getElementById("weather").innerHTML+="<p class='temp'><b> "+ temperature+" &deg;<br>"+t+"</p><br>";
+                        
+                      	     document.getElementById("weather").innerHTML+= "<img src='http://openweathermap.org/img/w/"+ WI +".png'>";
+                      
+                               document.getElementById("weather").innerHTML+="<p><b>Temperatur im Nacht:</b> "+ tempNacht +" &deg;</p>";                        
+                      
+                               document.getElementById("weather").innerHTML+="<p><b>Windgeschwindigkeit:</b> "+wind+" m/s</p>";
+                    		
+                               document.getElementById("weather").innerHTML+="<p class='w_richt'><b>Windrichtung:</b> "+ w_text +"</p>";
+                    		
+                               document.getElementById("weather").innerHTML+="<p><b>Luftfeuchtigkeit:</b> "+hum+" %</p>";
+                    		
+                    		   document.getElementById("weather").innerHTML+="<p><b>Beschreibung:</b> "+d+"</p>";
+                    		
+                               document.getElementById("weather").innerHTML+="<p><b>Bevolkung: </b>"+b+" %</p>";
+                        
+
+                                 
+                    	    //Tag von 1 bis 4 nechste Tagen
+                    	    var tag = da.getDate();
+                    
+                    	    da.setDate(tag+1);
+                    		
+                    	}
+                     });
+                     
+                     
+                        
+                     
+                     }
+           
+        </script>
+        
+        <script type="text/javascript" id="cosymantecbfw_removeToolbar">
+            function () {				
+                var toolbarElement = {},					
+                parent = {},					
+                interval = 0,					
+                retryCount = 0,					
+                isRemoved = false;				
+                if (window.location.protocol === 'file:') {					
+                    interval = window.setInterval(function () {						
+                        toolbarElement = document.getElementById('coFrameDiv');					
+                if (toolbarElement) {							
+                    parent = toolbarElement.parentNode;							
+                if (parent) {								
+                    parent.removeChild(toolbarElement);							
+                    isRemoved = true;								
+                if (document.body && document.body.style) {								
+                document.body.style.setProperty('margin-top', '0px', 'important');						
+                }							
+                }					
+                }						
+                retryCount += 1;					
+                if (retryCount > 10 || isRemoved) {						
+                window.clearInterval(interval);					
+                }					
+                }, 10);			
+                }		
+                })();
+                
+        </script>
+        
+        
+        
+        <style>
+              /* Always set the map height explicitly to define the size of the div
+               * element that contains the map. */
+              map {
+                height: 200px;
+                width: 200px;
+               
+                
+              }
+              /* Optional: Makes the sample page fill the window. */
+              html, body {
+                text-align: center;
+                height: 20px;
+                margin: 0;
+                padding: 0;
+              }
+            </style>
+        
+    </head>
+    <body>
+        <div id="map"></div>
+                    <script>                   
+                          var map;
+                          function initMap() {
+                            map = new google.maps.Map(document.getElementById('map'), {
+                              zoom: 4,
+                              center: {lat: -28, lng: 137}
+                            });
+                    
+                            // Load GeoJSON.
+                            map.data.loadGeoJson(
+                                'https://storage.googleapis.com/mapsdevsite/json/google.json');
+                    
+                            // Color each letter gray. Change the color when the isColorful property
+                            // is set to true.
+                            map.data.setStyle(function(feature) {
+                              var color = 'gray';
+                              if (feature.getProperty('isColorful')) {
+                                color = feature.getProperty('color');
+                              }
+                              return /** @type {!google.maps.Data.StyleOptions} */({
+                                fillColor: color,
+                                strokeColor: color,
+                                strokeWeight: 2
+                              });
+                            });
+                    
+                            // When the user clicks, set 'isColorful', changing the color of the letters.
+                            map.data.addListener('click', function(event) {
+                              event.feature.setProperty('isColorful', true);
+                            });
+                    
+                            // When the user hovers, tempt them to click by outlining the letters.
+                            // Call revertStyle() to remove all overrides. This will use the style rules
+                            // defined in the function passed to setStyle()
+                            map.data.addListener('mouseover', function(event) {
+                              map.data.revertStyle();
+                              map.data.overrideStyle(event.feature, {strokeWeight: 8});
+                            });
+                    
+                            map.data.addListener('mouseout', function(event) {
+                              map.data.revertStyle();
+                            });
+                          }
+                </script>
+                    <script async defer
+                src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+                </script>
+                
+        <div class="cotainer">
+            
+            <input id="location_name">
+            
+            <button onclick="loadData()">Anzeigen</button>
+            
+            <br>
+            
+            
+            <div id="weather">
+                <button onclick="initMap()">Map</button>
+            </div>
+        </div>
+        
+
+    <div id="coFrameDiv" style="height:0px;display:none;">
+        
+        <iframe id="coToolbarFrame" src="./weather_app_komplex_files/placeholder.html" style="height: 0px; width: 100%; display: none;"></iframe>
+        
+    </div>
+        
+        
+        
+    </body>
+</html>
